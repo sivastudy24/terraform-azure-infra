@@ -11,14 +11,14 @@ variable "vm_name" {
 }
 
 variable "subnet_name" {
-  type =string
-  }
-  
+  type = string
+}
+
 variable "admin_username" {
   type = string
 }
 
 variable "admin_password" {
-  type = string
+  type      = string
   sensitive = true
 }
