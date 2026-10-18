@@ -90,13 +90,13 @@ resource "azurerm_virtual_machine_data_disk_attachment" "datadisk_attach" {
 data "azurerm_client_config" "current" {}
 
 resource "azurerm_key_vault" "kv" {
-  name                       = "kv-bluegen-siva24"   # must be globally unique, 3-24 chars
+  name                       = "kv-bluegen-siva24" # must be globally unique, 3-24 chars
   location                   = azurerm_resource_group.rg.location
   resource_group_name        = azurerm_resource_group.rg.name
   tenant_id                  = data.azurerm_client_config.current.tenant_id
   sku_name                   = "standard"
   rbac_authorization_enabled = true
-  purge_protection_enabled   = false   # false is easier for practice, use true in production
+  purge_protection_enabled   = false # false is easier for practice, use true in production
   soft_delete_retention_days = 7
 }
 
@@ -121,4 +121,27 @@ resource "azurerm_key_vault_secret" "vm_admin" {
   value        = random_password.vm_admin.result
   key_vault_id = azurerm_key_vault.kv.id
   depends_on   = [azurerm_role_assignment.kv_admin]
+}
+
+resource "azurerm_network_security_group" "nsg" {
+  name                = "vm-nsg"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  security_rule {
+    name                       = "Allow-RDP"
+    priority                   = 1001
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "3389"
+    source_address_prefix      = "<your-public-ip>/32"
+    destination_address_prefix = "*"
+  }
+}
+
+resource "azurerm_network_interface_security_group_association" "nsg_assoc" {
+  network_interface_id      = azurerm_network_interface.nic.id
+  network_security_group_id = azurerm_network_security_group.nsg.id
 }
