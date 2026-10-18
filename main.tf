@@ -51,7 +51,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   size                = "Standard_B2s"
 
   admin_username = var.admin_username
-  admin_password = var.admin_password
+  admin_password = random_password.vm_admin.result
 
   network_interface_ids = [
     azurerm_network_interface.nic.id
@@ -87,3 +87,38 @@ resource "azurerm_virtual_machine_data_disk_attachment" "datadisk_attach" {
   caching = "ReadWrite"
 }
 
+data "azurerm_client_config" "current" {}
+
+resource "azurerm_key_vault" "kv" {
+  name                       = "kv-bluegen-siva24"   # must be globally unique, 3-24 chars
+  location                   = azurerm_resource_group.rg.location
+  resource_group_name        = azurerm_resource_group.rg.name
+  tenant_id                  = data.azurerm_client_config.current.tenant_id
+  sku_name                   = "standard"
+  rbac_authorization_enabled = true
+  purge_protection_enabled   = false   # false is easier for practice, use true in production
+  soft_delete_retention_days = 7
+}
+
+resource "azurerm_role_assignment" "kv_admin" {
+  scope                = azurerm_key_vault.kv.id
+  role_definition_name = "Key Vault Secrets Officer"
+  principal_id         = data.azurerm_client_config.current.object_id
+}
+
+resource "random_password" "vm_admin" {
+  length           = 20
+  special          = true
+  override_special = "!#$%*-_=+"
+  min_upper        = 2
+  min_lower        = 2
+  min_numeric      = 2
+  min_special      = 2
+}
+
+resource "azurerm_key_vault_secret" "vm_admin" {
+  name         = "bluegenvm-admin-password"
+  value        = random_password.vm_admin.result
+  key_vault_id = azurerm_key_vault.kv.id
+  depends_on   = [azurerm_role_assignment.kv_admin]
+}
