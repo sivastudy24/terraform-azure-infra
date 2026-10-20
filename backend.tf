@@ -1,0 +1,8 @@
+terraform {
+  backend "azurerm" {
+    resource_group_name  = "rg-terraform-vm"
+    storage_account_name = "stbluegene"
+    container_name       = "tfstate"
+    key                  = "terraform.tfstate"
+  }
+}
