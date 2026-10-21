@@ -115,22 +115,3 @@ resource "azurerm_virtual_machine_data_disk_attachment" "datadisk_attach" {
   lun     = 0
   caching = "ReadWrite"
 }
-##
-# Data Disk
-resource "azurerm_managed_disk" "datadisk2" {
-  name                 = "vm-datadisk-2"
-  location             = var.location
-  resource_group_name  = azurerm_resource_group.rg.name
-  storage_account_type = "Standard_LRS"
-  create_option        = "Empty"
-  disk_size_gb         = 64
-}
-
-# Disk Attachment
-resource "azurerm_virtual_machine_data_disk_attachment" "datadisk2_attach" {
-  managed_disk_id    = azurerm_managed_disk.datadisk2.id
-  virtual_machine_id = azurerm_windows_virtual_machine.vm.id
-
-  lun     = 1
-  caching = "ReadWrite"
-}
