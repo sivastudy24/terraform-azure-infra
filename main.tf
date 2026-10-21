@@ -117,7 +117,7 @@ resource "azurerm_virtual_machine_data_disk_attachment" "datadisk_attach" {
 }
 ##
 # Data Disk
-resource "azurerm_managed_disk" "datadisk1" {
+resource "azurerm_managed_disk" "datadisk2" {
   name                 = "vm-datadisk-2"
   location             = var.location
   resource_group_name  = azurerm_resource_group.rg.name
@@ -127,7 +127,7 @@ resource "azurerm_managed_disk" "datadisk1" {
 }
 
 # Disk Attachment
-resource "azurerm_virtual_machine_data_disk_attachment" "datadisk_attach" {
+resource "azurerm_virtual_machine_data_disk_attachment2" "datadisk_attach" {
   managed_disk_id    = azurerm_managed_disk.datadisk2.id
   virtual_machine_id = azurerm_windows_virtual_machine.vm.id
 
