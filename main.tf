@@ -115,3 +115,80 @@ resource "azurerm_virtual_machine_data_disk_attachment" "datadisk_attach" {
   lun     = 0
   caching = "ReadWrite"
 }
+
+# Public IP for VM2
+resource "azurerm_public_ip" "pip2" {
+  name                = "vm2-public-ip"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+}
+
+# NIC for VM2
+resource "azurerm_network_interface" "nic2" {
+  name                = "vm2-nic"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.subnet.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.pip2.id
+  }
+}
+
+# NSG Association for VM2
+resource "azurerm_network_interface_security_group_association" "nsg_assoc2" {
+  network_interface_id      = azurerm_network_interface.nic2.id
+  network_security_group_id = azurerm_network_security_group.nsg.id
+}
+
+# Windows VM2
+resource "azurerm_windows_virtual_machine" "vm2" {
+  name                = "vm2"
+  computer_name       = "vm2"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+  size                = "Standard_B2s"
+
+  admin_username = var.admin_username
+  admin_password = var.admin_password
+
+  network_interface_ids = [
+    azurerm_network_interface.nic2.id
+  ]
+
+  os_disk {
+    name                 = "vm2-osdisk"
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "2019-Datacenter"
+    version   = "latest"
+  }
+}
+
+# Data Disk for VM2
+resource "azurerm_managed_disk" "datadisk2" {
+  name                 = "vm2-datadisk-1"
+  location             = var.location
+  resource_group_name  = azurerm_resource_group.rg.name
+  storage_account_type = "Standard_LRS"
+  create_option        = "Empty"
+  disk_size_gb         = 64
+}
+
+# Attach Data Disk to VM2
+resource "azurerm_virtual_machine_data_disk_attachment" "datadisk_attach2" {
+  managed_disk_id    = azurerm_managed_disk.datadisk2.id
+  virtual_machine_id = azurerm_windows_virtual_machine.vm2.id
+
+  lun     = 0
+  caching = "ReadWrite"
+}
