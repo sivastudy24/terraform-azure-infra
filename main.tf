@@ -116,7 +116,7 @@ resource "azurerm_virtual_machine_data_disk_attachment" "datadisk_attach" {
   caching = "ReadWrite"
 }
 ##
-# Data Disk
+## Data Disk
 resource "azurerm_managed_disk" "datadisk2" {
   name                 = "vm-datadisk-2"
   location             = var.location
