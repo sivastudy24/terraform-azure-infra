@@ -6,7 +6,8 @@ on:
       - main
 
 jobs:
-  terraform-apply:
+  deploy:
+    environment: prod
     runs-on: ubuntu-latest
 
     env:
