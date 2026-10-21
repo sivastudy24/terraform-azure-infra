@@ -131,6 +131,6 @@ resource "azurerm_virtual_machine_data_disk_attachment" "datadisk2_attach" {
   managed_disk_id    = azurerm_managed_disk.datadisk2.id
   virtual_machine_id = azurerm_windows_virtual_machine.vm.id
 
-  lun     = 0
+  lun     = 1
   caching = "ReadWrite"
 }
