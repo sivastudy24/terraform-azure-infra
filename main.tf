@@ -178,7 +178,7 @@ resource "azurerm_windows_virtual_machine" "vm2" {
 resource "azurerm_managed_disk" "datadisk2" {
   name                 = "vm2-datadisk-1"
   location             = var.location
-  resource_group_name  = azurerm_resource_group.rg.name
+  resource_group_name  = data.azurerm_resource_group.rg
   storage_account_type = "Standard_LRS"
   create_option        = "Empty"
   disk_size_gb         = 64
