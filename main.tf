@@ -1,6 +1,6 @@
 # Resource Group
 data "azurerm_resource_group" "rg" {
-  name     = var.resource_group_name
+  name     = "rg-terraform-vm"
   }
 
 # Virtual Network
@@ -8,13 +8,13 @@ resource "azurerm_virtual_network" "vnet" {
   name                = "vm-vnet"
   address_space       = ["10.0.0.0/16"]
   location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg
+  resource_group_name = data.azurerm_resource_group.rg.name.name
 }
 
 # Subnet
 resource "azurerm_subnet" "subnet" {
   name                 = "vm-subnet"
-  resource_group_name  = data.azurerm_resource_group.rg
+  resource_group_name  = data.azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.1.0/24"]
 }
@@ -23,7 +23,7 @@ resource "azurerm_subnet" "subnet" {
 resource "azurerm_public_ip" "pip" {
   name                = "vm-public-ip"
   location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg
+  resource_group_name = data.azurerm_resource_group.rg.name
   allocation_method   = "Static"
   sku                 = "Standard"
 }
@@ -32,7 +32,7 @@ resource "azurerm_public_ip" "pip" {
 resource "azurerm_network_security_group" "nsg" {
   name                = "vm-nsg"
   location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg
+  resource_group_name = data.azurerm_resource_group.rg.name
 
   security_rule {
     name                       = "Allow-RDP"
@@ -51,7 +51,7 @@ resource "azurerm_network_security_group" "nsg" {
 resource "azurerm_network_interface" "nic" {
   name                = "vm-nic"
   location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg
+  resource_group_name = data.azurerm_resource_group.rg.name
 
   ip_configuration {
     name                          = "internal"
@@ -72,7 +72,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   name                = var.vm_name
   computer_name       = var.vm_name
   location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg
+  resource_group_name = data.azurerm_resource_group.rg.name
   size                = "Standard_B2s"
 
   admin_username = var.admin_username
@@ -100,7 +100,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
 resource "azurerm_managed_disk" "datadisk1" {
   name                 = "vm-datadisk-1"
   location             = var.location
-  resource_group_name  = data.azurerm_resource_group.rg
+  resource_group_name  = data.azurerm_resource_group.rg.name
   storage_account_type = "Standard_LRS"
   create_option        = "Empty"
   disk_size_gb         = 64
@@ -119,7 +119,7 @@ resource "azurerm_virtual_machine_data_disk_attachment" "datadisk_attach" {
 resource "azurerm_public_ip" "pip2" {
   name                = "vm2-public-ip"
   location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg
+  resource_group_name = data.azurerm_resource_group.rg.name
   allocation_method   = "Static"
   sku                 = "Standard"
 }
@@ -128,7 +128,7 @@ resource "azurerm_public_ip" "pip2" {
 resource "azurerm_network_interface" "nic2" {
   name                = "vm2-nic"
   location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg
+  resource_group_name = data.azurerm_resource_group.rg.name
 
   ip_configuration {
     name                          = "internal"
@@ -149,7 +149,7 @@ resource "azurerm_windows_virtual_machine" "vm2" {
   name                = "vm2"
   computer_name       = "vm2"
   location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg
+  resource_group_name = data.azurerm_resource_group.rg.name
   size                = "Standard_B2s"
 
   admin_username = var.admin_username
@@ -177,7 +177,7 @@ resource "azurerm_windows_virtual_machine" "vm2" {
 resource "azurerm_managed_disk" "datadisk2" {
   name                 = "vm2-datadisk-1"
   location             = var.location
-  resource_group_name  = data.azurerm_resource_group.rg
+  resource_group_name  = data.azurerm_resource_group.rg.name
   storage_account_type = "Standard_LRS"
   create_option        = "Empty"
   disk_size_gb         = 64
